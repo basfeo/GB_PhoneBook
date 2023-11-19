@@ -1,37 +1,21 @@
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 class PhoneBook {
-    private static Map<String, List<Integer>> phoneBook = new HashMap<>();
+    private static HashMap<String, ArrayList<Integer>> phoneBook = new HashMap<>();
 
     public void add(String name, Integer phoneNum) {
-        if (phoneBook.containsKey(name)) {
-            // Если запись с именем name уже существует, добавляем новый номер телефона в список
-            List<Integer> phoneNums = phoneBook.get(name);
-            phoneNums.add(phoneNum);
-        } else {
-            // Если записи с именем name не существует, создаем новую запись
-            List<Integer> phoneNums = new ArrayList<>();
-            phoneNums.add(phoneNum);
-            phoneBook.put(name, phoneNums);
-        }
+        phoneBook.computeIfAbsent(name, k -> new ArrayList<>()).add(phoneNum);
     }
 
     public List<Integer> find(String name) {
-        if (phoneBook.containsKey(name)) {
-            // Если запись с именем name существует, возвращаем список номеров телефона
-            return phoneBook.get(name);
-        } else {
-            // Если записи с именем name не существует, возвращаем пустой список
-            return new ArrayList<>();
-        }
+        return phoneBook.getOrDefault(name, new ArrayList<>());
     }
 
-    public static Map<String, List<Integer>> getPhoneBook() {
-        // Возвращаем всю телефонную книгу
+    public HashMap<String, ArrayList<Integer>> getPhoneBook() {
         return phoneBook;
     }
 }
@@ -61,14 +45,16 @@ public class Printer {
         myPhoneBook.add(name2, phone2);
 
         System.out.println(myPhoneBook.find(name1));
-        System.out.println(PhoneBook.getPhoneBook());
+        System.out.println(myPhoneBook.getPhoneBook());
 
-        // Выводим все контакты из телефонной книги отсортированными по убыванию числа телефонов
-        // Выводим все контакты из телефонной книги отсортированными по убыванию числа телефонов
-        List<Map.Entry<String, List<Integer>>> sortedEntries = new ArrayList<>(myPhoneBook.getPhoneBook().entrySet());
-        Collections.sort(sortedEntries, (e1, e2) -> Integer.compare(e2.getValue().size(), e1.getValue().size()));
-        for (Map.Entry<String, List<Integer>> entry : sortedEntries) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
+        // Сортировка по убыванию числа телефонов
+        List<String> sortedContacts = new ArrayList<>(myPhoneBook.getPhoneBook().keySet());
+        sortedContacts.sort(Comparator.comparingInt(o -> myPhoneBook.getPhoneBook().get(o).size()));
+        Collections.reverse(sortedContacts);
+
+        // Вывод отсортированных контактов
+        for (String name : sortedContacts) {
+            System.out.println(name + ": " + myPhoneBook.find(name));
         }
     }
 }
